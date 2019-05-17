@@ -4,29 +4,29 @@
     </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { ebookMixin } from '../../utils/mixin'
 import Epub from 'epubjs'
 global.ePub = Epub
 export default {
-    computed: {
-        ...mapGetters([
-            'fileName',
-            'menuVisible'
-            ])
-    },
+    mixins: [ebookMixin],
     methods: {
         prevPage() {
             if (this.rendition) {
                 this.rendition.prev()
+                this.hideTitleAndMenu()
             }
         },
         nextPage() {
             if (this.rendition) {
                 this.rendition.next()
+                this.hideTitleAndMenu()
             }
         },
         toggleTitleAndMenu() {
-            this.$store.dispatch('setMenuVisible',!this.menuVisible)
+            this.setMenuVisible(!this.menuVisible)
+        },
+        hideTitleAndMenu() {
+            this.setMenuVisible(false)
         },
         initEpub() {
             const url = 'http://localhost:8089/epub/'+ this.fileName + '.epub'
@@ -57,8 +57,7 @@ export default {
         }
     },
     mounted() {     
-
-        this.$store.dispatch('setFileName',this.$route.params.fileName.split('|').join('/')).then(() => {
+        this.setFileName(this.$route.params.fileName.split('|').join('/')).then(() => {
             this.initEpub()
         })    
     }
