@@ -18,27 +18,56 @@
                 </div>
                 <div class="preview" :style="{fontSize: fontSizeList[fontSizeList.length - 1].fontSize + 'px'}">A</div>
             </div>
+            <div class="setting-font-family" @click="showFontFamilyPopup">
+              <div class="setting-font-family-text-wrapper">
+                <span class="etting-font-family-text">{{defaultFontFamily}}</span>
+              </div>
+              <div class="setting-font-family-icon-wrapper">
+                <span class="icon-forward"></span>
+              </div>
+            </div>
         </div>
     </transition>
 </template>
 <script>
 import { ebookMixin } from '../../utils/mixin'
+import { FONT_SIZE_LIST } from '../../utils/book'
 export default {
     mixins: [ebookMixin],
+    data() {
+      return {
+        fontSizeList: FONT_SIZE_LIST
+      }
+    },
+    methods: {
+      setFontSize(fontSize) {
+        this.setDefaultFontSize(fontSize)
+        this.currentBook.rendition.themes.fontSize(fontSize+ 'px') 
+        // console.log(this.currentBook)
+        // console.log(this.currentBook.rendition.themes)
+      },
+      showFontFamilyPopup() {
+        console.log("ok")
+        this.setFontFamilyVisible(true)
+      }
+    }
 }
 </script>
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
  @import "../../assets/styles/global";
    .setting-wrapper {
     position: absolute;
     bottom: px2rem(48);
     left: 0;
     z-index: 101;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    height: px2rem(60);
+    height: px2rem(90);
     background: white;
     box-shadow: 0 px2rem(-8) px2rem(8) rgba(0, 0, 0, .15);
     .setting-font-size {
+      flex: 2;
       display: flex;
       height: 100%;
       .preview {
@@ -97,6 +126,17 @@ export default {
             }
           }
         }
+      }
+    }
+    .setting-font-family {
+      flex: 1;
+      font-size: px2rem(14);
+      @include center;
+      .setting-font-family-text-wrapper {
+        @include center;
+      }
+      .setting-font-family-icon-wrapper {
+        @include center;
       }
     }
   }
