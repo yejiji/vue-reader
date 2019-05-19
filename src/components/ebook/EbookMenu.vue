@@ -18,12 +18,14 @@
         </transition>
         <ebook-setting-font></ebook-setting-font>
         <ebook-setting-font-popup></ebook-setting-font-popup>
+        <ebook-setting-theme></ebook-setting-theme>
     </div>
 </template>
 <script>
 import { ebookMixin } from '../../utils/mixin'
 import EbookSettingFont from '../ebook/EbookSettingFont'
 import EbookSettingFontPopup from './EbookSettingFontPopup'
+import EbookSettingTheme from './EbookSettingTheme'
 export default {
     mixins: [ebookMixin],
     methods:{
@@ -33,7 +35,8 @@ export default {
     },
     components:{
       EbookSettingFont,
-      EbookSettingFontPopup 
+      EbookSettingFontPopup,
+      EbookSettingTheme
     }
 }
 </script>
