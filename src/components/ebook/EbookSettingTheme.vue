@@ -3,8 +3,10 @@
         <div class="setting-wrapper" v-show="menuVisible && settingVisible === 1">
             <div class="setting-theme" >
                 <div class="setting-theme-item" v-for="(item, index) in themeList" :key="index" @click="setTheme(index)">
-                    <div class="preview" :style="{background: item.style.body.background}" :class="{'no-border': item.style.body.background !== '#fff'}"></div>
-                    <div class="text" :class="{'selected': index === defaultTheme}">{{item.name}}</div>
+                    <div class="preview" :style="{background: item.style.body.background}"
+                    :class="{'selected': item.name === defaultTheme}"
+                     ></div>
+                    <div class="text" :class="{'selected': item.name === defaultTheme}">{{item.alias}}</div>
                 </div>
             </div>
         </div>
@@ -12,13 +14,19 @@
 </template>
 <script>
 import { ebookMixin } from '../../utils/mixin'
-import { themeList } from '../../utils/book'
+import { saveTheme } from '../../utils/localStorage'
 export default {
     mixins: [ebookMixin],    
-    computed: {
-        themeList() {
-            return themeList(this)
-        }
+    methods: {
+      setTheme(index) {
+        const theme = this.themeList[index]
+        this.setDefaultTheme(theme.name).then(() => {
+          this.currentBook.rendition.themes.select(this.defaultTheme)
+        })
+        this.initGlobalStyle()
+        console.log(this.defaultTheme)
+        saveTheme(this.fileName,theme.name)
+      }
     }
 }
 </script>
@@ -46,8 +54,8 @@ export default {
           flex: 1;
           border: px2rem(1) solid #ccc;
           box-sizing: border-box;
-          &.no-border {
-            border: none;
+          &.selected {
+            box-shadow:  0 px2rem(4) px2rem(6) 0 rgba(0, 0, 0, .1);
           }
         }
         .text {
