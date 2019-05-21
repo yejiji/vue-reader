@@ -4,8 +4,21 @@
             <transition name="slide-right">
                 <div class="content" v-if="settingVisible === 3">
                     <div class="content-page-wrapper">
-                        <div class="content-page"></div>
-                        <div class="content-page-tab"></div>
+                        <div class="content-page">
+                          <component :is="currentTab === 1 ? content : bookmark"></component>
+                        </div>
+                        <div class="content-page-tab">
+                          <div class="content-page-tab-item" 
+                          :class="{'selected':currentTab === 1}"
+                          @click="selectTab(1)">
+                            {{$t('book.navigation')}}
+                          </div>
+                          <div class="content-page-tab-item"
+                          :class="{'selected':currentTab === 2}"
+                          @click="selectTab(2)">
+                            {{$t('book.bookmark')}}
+                          </div>
+                        </div>
                     </div>
                 </div>
             </transition>
@@ -15,11 +28,23 @@
 </template>
 <script>
 import { ebookMixin } from '../../utils/mixin'
+import EbookSlideContents from './EbookSlideContents'
+import EbookBookmark from './EbookSlideBookmark'
 export default {
     mixins: [ebookMixin], 
+    data() {
+      return {
+        currentTab: 1,
+        content : EbookSlideContents,
+        bookmark :EbookBookmark
+        
+      }
+    },
     methods: {
-    }   
-
+      selectTab (tab) {
+        this.currentTab = tab
+      }
+    } 
 }
 </script>
 <style lang="scss" scoped>
