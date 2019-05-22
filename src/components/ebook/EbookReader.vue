@@ -5,6 +5,7 @@
 </template>
 <script>
 import { ebookMixin } from '../../utils/mixin'
+import { flatten } from '../../utils/book'
 import { saveFontSize, getFontSize, saveFontFamily, getFontFamily, getTheme, saveTheme, getLocation } from '../../utils/localStorage'
 import Epub from 'epubjs'
 global.ePub = Epub
@@ -112,6 +113,17 @@ export default {
             this.book.loaded.metadata.then(metadata => {
                 this.setMetadata(metadata)
             })
+            this.book.loaded.navigation.then(nav => {
+                const navItme = flatten(nav.toc)
+                function find(item, level = 0) {
+                    return !item.parent ? level : find(navItme.filter(parentItem => parentItem.id ===
+                        item.parent)[0],++level)
+                }
+                navItme.forEach(item => {
+                        item.level = find(item)
+                    })
+                this.setNavigation(navItme)
+            })
         },
         initEpub() {
             const url = process.env.VUE_APP_RES_URL+'/epub/'+ this.fileName + '.epub'
@@ -130,8 +142,10 @@ export default {
     },
     mounted() {     
         this.setFileName(this.$route.params.fileName.split('|').join('/')).then(() => {
-            this.initEpub()
-        })    
+            this.initEpub() 
+        }) 
+        
+
     }
 }
 </script>
