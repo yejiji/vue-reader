@@ -1,6 +1,10 @@
 <template>
-    <div class="ebook">
+    <div class="ebook-reader">
         <div id="read"></div>
+        <div class="ebook-reader-mask"
+        @click="onMaskClick"
+        @touchmove="move"
+        @touchend="moveEnd"></div>
     </div>
 </template>
 <script>
@@ -12,7 +16,33 @@ global.ePub = Epub
 export default {
     mixins: [ebookMixin],
     methods: {
-        prevPage() {
+        move(e) {
+            let offsetY = 0
+            if (this.firstOffsetY) {
+            offsetY = e.changedTouches[0].clientY - this.firstOffsetY
+            this.setOffsetY(offsetY)
+            } else {
+            this.firstOffsetY = e.changedTouches[0].clientY
+            }
+            e.preventDefault()
+            e.stopPropagation()
+        },
+        moveEnd (e) {
+            this.setOffsetY(0)
+            this.firstOffsetY = null
+        },
+        onMaskClick (e) {
+            const offsetX = e.offsetX
+            const width = window.innerWidth
+            if (offsetX > 0 && offsetX < width * 0.3) {
+                this.prevPage()
+            } else if (offsetX > 0 && offsetX > width * 0.7) {
+                this.nextPage()
+            }else {
+                this.toggleTitleAndMenu() 
+            }
+        },
+        prevPage () {
             if (this.rendition) {
                 this.rendition.prev().then(() => {
                    this.refreshLocation()
@@ -20,7 +50,7 @@ export default {
                 this.hideTitleAndMenu()
             }
         },
-        nextPage() {
+        nextPage () {
             if (this.rendition) {
                 this.rendition.next().then(() => {
                     this.refreshLocation()
@@ -28,14 +58,14 @@ export default {
                 this.hideTitleAndMenu()            
             }
         },
-        toggleTitleAndMenu() {
+        toggleTitleAndMenu () {
             if(this.menuVisible) {
               this.setSettingVisible(-1)
               this.setFontFamilyVisible(false)
             }
             this.setMenuVisible(!this.menuVisible)
         },
-        initFontSize() {
+        initFontSize () {
             let fontSize = getFontSize(this.fileName)
             if(!fontSize) {
                 saveFontSize(this.fileName, this.defaultFontSize)
@@ -44,7 +74,7 @@ export default {
                 this.setDefaultFontSize(fontSize)
             }
         },
-        initFontFamily() {
+        initFontFamily () {
             let font = getFontFamily(this.fileName)
             if(!font) {
                 saveFontFamily(this.fileName, this.defaultFontFamily)
@@ -53,7 +83,7 @@ export default {
                 this.setDefaultFontFamily(font)
             }
         },
-        initTheme() {
+        initTheme () {
             let defaultTheme = getTheme(this.fileName)
             if(!defaultTheme) {
                 defaultTheme = this.themeList[0].name
@@ -65,7 +95,7 @@ export default {
             })           
             this.rendition.themes.select(defaultTheme)
         },
-        initRendtion() {
+        initRendtion () {
             this.rendition = this.book.renderTo('read',{
                 width: innerWidth,
                 height: innerHeight,
@@ -85,7 +115,7 @@ export default {
                 contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/tangerine.css`)
             })
         },     
-        initGesture() {
+        initGesture () {
              this.rendition.on('touchstart',event => {
                 this.touchStartX = event.changedTouches[0].clientX
                 this.touchStartTime = event.timeStamp
@@ -104,7 +134,7 @@ export default {
                 event.stopPropagation()
             })  
         },  
-        parseBook(){
+        parseBook (){
             this.book.loaded.cover.then(cover => {
                 this.book.archive.createUrl(cover).then(url => {
                     this.setCover(url)
@@ -125,7 +155,7 @@ export default {
                 this.setNavigation(navItme)
             })
         },
-        initEpub() {
+        initEpub () {
             const url = process.env.VUE_APP_RES_URL+'/epub/'+ this.fileName + '.epub'
             this.book = new Epub(url)
             this.setCurrentBook(this.book)
@@ -151,4 +181,17 @@ export default {
 </script>
 <style lang="scss" scoped>
  @import "../../assets/styles/global";
+  .ebook-reader {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    .ebook-reader-mask {
+      position: absolute;
+      z-index: 150;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
 </style>

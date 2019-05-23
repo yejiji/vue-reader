@@ -40,15 +40,16 @@ export default {
       return {
         currentTab: 1,
         content : EbookSlideContents,
-        bookmark :EbookBookmark,
-        EbookLoading
-        
+        bookmark :EbookBookmark,        
       }
     },
     methods: {
       selectTab (tab) {
         this.currentTab = tab
       }
+    },
+    components: {
+        EbookLoading
     } 
 }
 </script>
