@@ -25,5 +25,6 @@
     height: 100%;
     // background: #7d8188;
     overflow: hidden;
+    background: #202124;
   }
 </style>
