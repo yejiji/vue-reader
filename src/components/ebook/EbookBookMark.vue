@@ -124,7 +124,7 @@ export default {
         }
       },
       beforeHeight () {
-          if (this.isBookMark) {
+          if (this.isBookmark) {
             this.text = this.$t('book.pulldownDeleteMark')
             this.color = BLUE
             this.fixed = true
@@ -144,7 +144,7 @@ export default {
       },
       afterThresHold(v) {
           this.$refs.bookmark.style.top = `${-v}px`
-          if (this.isBookMark) {
+          if (this.isBookmark) {
             this.text = this.$t('book.releaseDeleteMark')
             this.color = WHITE
             this.fixed = false
