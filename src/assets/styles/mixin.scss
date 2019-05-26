@@ -1,5 +1,6 @@
 $ratio: 375 / 10;
-
+$homeAnimationTime: .2s;
+$homeAnimationType: linear;
 @function px2rem($px) {
   @return $px / $ratio + rem;
 }
@@ -47,4 +48,13 @@ $ratio: 375 / 10;
   &::-webkit-scrollbar {
     display: none;
   }
+}
+.icon {
+  color: #666;
+  font-size: px2rem(16);
+}
+.title {
+  color: #666;
+  font-size: px2rem(16);
+  font-weight: bold
 }
