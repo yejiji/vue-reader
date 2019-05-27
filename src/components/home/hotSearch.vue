@@ -82,11 +82,11 @@
         .text {
           flex: 1;
           height: 100%;
-          @include ellipsis;
-          @include left;
           font-size: px2rem(14);
           font-weight: bold;
           color: #666;
+          @include ellipsis;
+          @include left;
         }
         .num {
           font-size: px2rem(12);

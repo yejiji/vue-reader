@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div class="search-bar-wrapper" :class="{'hide-title': !titleVisible,
     'hide-shadow':!shadowVisible}">
         <transition name="title-move">
@@ -6,12 +7,14 @@
                 <div class="title-icon-text-wrapper">
                     <span class="title-text title">{{$t('home.title')}}</span>
                 </div>
-                <div class="title-icon-shake-wrapper">
+                <div class="title-icon-shake-wrapper" @click="showFlapCard">
                     <span class="icon-shake icon"></span>
                 </div>
             </div>
         </transition>
-         <div class="title-icon-back-wrapper" :class="{'hide-title': !titleVisible}">
+         <div class="title-icon-back-wrapper"
+          :class="{'hide-title': !titleVisible}"
+          @click="back">
                     <span class="icon-back icon"></span>
          </div>
         <div class="search-bar-input-wrapper" :class="{'hide-title': !titleVisible}">
@@ -21,21 +24,25 @@
                 <input class="input"
                 type="text"
                 :placeholder="$t('home.hint')"
-                v-model="searchText"/>
+                v-model="searchText"
+                @click="showHotSearch"/>
             </div>
         </div>
     </div> 
+    <hot-search-list v-show="hotSearchVisible" ref="hotSearch"></hot-search-list>
+  </div>  
 </template>
 <script>
 import { storeHomeMixin } from '../../utils/mixin'
-import { maxHeaderSize } from 'http';
+import HotSearchList from './HotSearchList'
 export default {
     mixins: [storeHomeMixin],
     data() {
         return {
             searchText: '',
             titleVisible: true,
-            shadowVisible: false
+            shadowVisible: false,
+            hotSearchVisible: false
         }
     },
     watch: {
@@ -47,9 +54,27 @@ export default {
                 this.showTitle()
                 this.hideShadow()
             }
+        },
+        hotSearchOffsetY(offsetY) {
+            if (offsetY > 0) {
+                this.showShadow()
+            } else {
+                this.hideShadow()
+            }
         }
     },
     methods: {
+        showFlapCard () {
+            this.setFlapCardVisible(true)
+        },
+        back () {
+            if (this.offsetY > 0) {
+                this.showShadow()
+            } else {
+                this.hideShadow()
+            }
+            this.hideHotSearch()
+        },
         hideTitle () {
             this.titleVisible = false
         },
@@ -61,7 +86,30 @@ export default {
         },
         showShadow () {
             this.shadowVisible = true
+        },
+        hideHotSearch () {
+            this.hotSearchVisible = false
+            if (this.offsetY > 0) {
+                this.hideTitle()
+                this.showShadow()
+            } else {
+                this.showTitle()
+                this.hideShadow()
+            }
+            
+        },
+        showHotSearch () {
+            this.hotSearchVisible = true
+            this.hideTitle()
+            this.hideShadow()
+            this.$nextTick(() => {
+                this.$refs.hotSearch.reset()
+            })
+            
         }
+    },
+    components: {
+        HotSearchList
     }
 }
 </script>
@@ -104,6 +152,7 @@ export default {
         left: px2rem(15);
         top: 0;
         height: px2rem(42);
+        z-index: 200;
         @include center;
         transition: height $homeAnimationTime linear;
         &.hide-title {
@@ -128,10 +177,10 @@ export default {
             width: 0;
             // flex: 0 0 px2rem(31);
             // width:px2rem(31) ;
+            transition: all $homeAnimationTime linear;
             &.hide-title {
               flex: 0 0 px2rem(31);
-              width:px2rem(31);   
-              transition: all $homeAnimationTime linear;
+              width:px2rem(31);                 
             }
         }
         .search-bar-input{

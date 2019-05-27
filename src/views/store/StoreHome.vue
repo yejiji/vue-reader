@@ -24,10 +24,12 @@
             <div>111111111111111111111</div>
 
         </scroll>
+        <flap-card></flap-card>
     </div> 
 </template>
 <script>
 import SearchBar from '../../components/home/SearchBar'
+import FlapCard from '../../components/home/FlapCard'
 import Scroll from '../../components/common/Scroll'
 import { storeHomeMixin } from '../../utils/mixin'
 export default {
@@ -39,7 +41,8 @@ export default {
     },
     components: {
         SearchBar,
-        Scroll
+        Scroll,
+        FlapCard
     },
     methods: {
         onScroll(offsetY) {

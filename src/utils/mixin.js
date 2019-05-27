@@ -4,12 +4,16 @@ import { saveLocation ,getBookmark} from './localStorage';
 export const storeHomeMixin = {
     computed: {
         ...mapGetters([
-            'offsetY'
+            'offsetY',
+            'hotSearchOffsetY',
+            'flapCardVisible'
         ])
     },
     methods: {
         ...mapActions([
-            'setOffsetY'
+            'setOffsetY',
+            'setHotSearchOffsetY',
+            'setFlapCardVisible'
         ])
     }
 }
