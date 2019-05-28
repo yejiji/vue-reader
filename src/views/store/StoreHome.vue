@@ -24,7 +24,7 @@
             <div>111111111111111111111</div>
 
         </scroll>
-        <flap-card></flap-card>
+        <flap-card :data="random"></flap-card>
     </div> 
 </template>
 <script>
@@ -32,6 +32,7 @@ import SearchBar from '../../components/home/SearchBar'
 import FlapCard from '../../components/home/FlapCard'
 import Scroll from '../../components/common/Scroll'
 import { storeHomeMixin } from '../../utils/mixin'
+import { Home } from '../../api/store'
 export default {
     mixins: [storeHomeMixin],
     data() {
@@ -42,7 +43,8 @@ export default {
     components: {
         SearchBar,
         Scroll,
-        FlapCard
+        FlapCard,
+        random: null
     },
     methods: {
         onScroll(offsetY) {
@@ -54,6 +56,15 @@ export default {
             }
             this.$refs.scroll.refresh()
         }
+    },
+    mounted() {
+        Home().then(response => {
+            if (response && response.status === 200) {
+                const data = response.data
+                const randomIndex = Math.floor(Math.random() * data.random.length)
+                this.random = data.random[randomIndex]
+            }
+        })
     }
 }
 </script>

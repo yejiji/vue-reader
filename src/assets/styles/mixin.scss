@@ -31,6 +31,12 @@ $homeAnimationType: linear;
   justify-content: center;
   align-items: flex-start;
 }
+@mixin columnTop {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
 @mixin ellipsis2($line) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -48,6 +54,14 @@ $homeAnimationType: linear;
   &::-webkit-scrollbar {
     display: none;
   }
+}
+@mixin absCenter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;            
 }
 .icon {
   color: #666;
