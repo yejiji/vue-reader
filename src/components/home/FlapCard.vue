@@ -22,8 +22,8 @@
                         <img class="img" :src="data ? data.cover : ''">
                     </div>
                     <div class="content-wrapper">
-                        <div class="title">{{ data ? data.title : ''}}}</div>
-                        <div class="author sub-title-medium">{{data ? data.author : ''}}}</div>
+                        <div class="title">{{ data ? data.title : ''}}</div>
+                        <div class="author sub-title-medium">{{data ? data.author : ''}}</div>
                         <div class="category">{{categoryText()}}</div>
                     </div>
                     <div class="read-btn" @click.stop="showBookDetail(data)">{{$t('home.readNow')}}</div>
@@ -37,7 +37,9 @@
 <script>
 import { storeHomeMixin } from '../../utils/mixin';
 import { flapCardList, categoryText } from '../../utils/store'
-import { setInterval, clearInterval, setTimeout } from 'timers';
+import { setInterval, clearInterval, setTimeout, clearTimeout } from 'timers';
+import { fips } from 'crypto';
+import { timeout } from 'q';
 export default {
     mixins: [storeHomeMixin],  
     props: {
@@ -143,6 +145,10 @@ export default {
                 this.rotate(index,'front')
                 this.rotate(index,'back')
             })
+            this.runBookCardAnimation = false
+            this.runFlagCardAnimation = false
+            this.runPointAnimation = false
+
 
         },
         startFlapCardAnimation() {
@@ -150,9 +156,7 @@ export default {
             this.task = setInterval(() => {
                 this.flapCardRotate()
             },this.intervalTime)
-            setTimeout(() => {
-               this.stopAnimation()
-            },2500)
+            
         },
         startPointAnimation () {
             this.runPointAnimation = true
@@ -162,22 +166,28 @@ export default {
             
         },
         stopAnimation () {
-            this.runFlagCardAnimation = false
+            
          
             if (this.task) {
                 clearInterval(this.task)
+            }
+            if (this.timeout) {
+                clearTimeout(this.timeout)
+            }
+            if (this.timeout2) {
+                clearTimeout(this.timeout2)
             }
             this.reset()
         },
         runAnimation () {
             this.runFlagCardAnimation = true
-            setTimeout(() => {
+            this.timeout = setTimeout(() => {
                 this.startPointAnimation()
                 this.startFlapCardAnimation()              
             },300)
-            setTimeout(() => {
-                this.runBookCardAnimation = true
-                             
+            this.timeout2 = setTimeout(() => {
+               this.stopAnimation()
+               this.runBookCardAnimation = true
             },2500)
         },
         categoryText () {

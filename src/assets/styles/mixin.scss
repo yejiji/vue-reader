@@ -4,7 +4,11 @@ $homeAnimationType: linear;
 @function px2rem($px) {
   @return $px / $ratio + rem;
 }
-
+@mixin top {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 @mixin center {
   display: flex;
   justify-content: center;
@@ -35,6 +39,12 @@ $homeAnimationType: linear;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: center;
+}
+@mixin columnCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 @mixin ellipsis2($line) {
