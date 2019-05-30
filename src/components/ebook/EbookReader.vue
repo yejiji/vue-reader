@@ -232,7 +232,7 @@ export default {
                         currentPage += nav.pageList.length + 1
                     })
                 })
-                this.setPageList(locations)
+                this.setPagelist(locations)
                 this.setBookAvailable(true)
                 this.refreshLocation()
             })        

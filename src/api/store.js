@@ -2,7 +2,7 @@ import axios from 'axios'
 export function Home() {
     return axios ({
         method:'get',
-        url:`${process.env.VUE_APP_BASE_UR}/book/home`
+        url:`http://localhost:8080/book/home `
     })
 }
 
