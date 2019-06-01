@@ -3,12 +3,14 @@
         <shelf-title></shelf-title>
         <scroll class="store-shelf-scroll-wrapper" :top="0">
             <shelf-search></shelf-search>
+            <shelf-list></shelf-list>
         </scroll>
     </div>
 </template>
 <script>
 import ShelfTitle from '../../components/shelf/ShelfTitle'
 import ShelfSearch from '../../components/shelf/ShelfSearch'
+import ShelfList from '../../components/shelf/ShelfList'
 import Scroll from '../../components/common/Scroll'
 import { storeShelfMixin } from '../../utils/mixin'
 export default {
@@ -16,7 +18,8 @@ export default {
     components: {
         ShelfTitle,
         Scroll,
-        ShelfSearch
+        ShelfSearch,
+        ShelfList
     }
 }
 </script>

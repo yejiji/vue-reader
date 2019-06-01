@@ -1,6 +1,6 @@
 <template>
-    <div class="shelf-search-wrapper">
-        <div class="shelf-search">
+    <div class="shelf-search-wrapper" :class="{'search-top' : ifInputClicked , 'hide-shadow': ifHideShadow}">
+        <div class="shelf-search" :class="{'search-top' : ifInputClicked}">
             <div class="search-wrapper">
                 <div class="icon-search-wrapper">
                     <span class="icon-search icon"></span>
@@ -10,40 +10,99 @@
                            type="text"
                            :placeholder="$t('shelf.search')"
                            @click="onSearchClick" 
+                           v-model="searchText"
                     >
                 </div>
-                <div class="icon-clear-wrapper">
+                <div class="icon-clear-wrapper" v-show="searchText.length > 0"
+                  @click="clearSearchText">
                     <span class="icon-close-circle-fill"></span>
                 </div>
             </div>
             <div class="icon-clock-wrapper" v-if="!ifInputClicked" @click="switchLocale">
                 <span class="icon-cn icon" v-if="lang === 'cn'"></span>
-                <span class="icon-en icon"></span>
+                <span class="icon-en icon" v-else ></span>
             </div>
             <div class="cancel-btn-wrapper" @click="onCancelClick" v-else>
                 <span class="cancel-text">{{$t('shelf.cancel')}}</span>
             </div>
         </div>
+        <transition name="hot-search-move">
+          <div class="tab-wrapper" v-if="ifInputClicked">
+            <div class="tab-item" v-for="(item, index) in tabs" :key="index" @click="onTabClick(item.id)">
+              <span class="tab-item-text" :class="{'is-selected': item.id === selectedTab}" >{{item.text}}</span>
+            </div>
+          </div>
+        </transition>
     </div>
+    
 </template>
 <script>
+import {setLocalStorage} from '../../utils/localStorage'
+import { storeShelfMixin } from '../../utils/mixin'
 export default {
+    mixins: [storeShelfMixin],
     data() {
         return {
-            ifInputClicked:false
+            ifShowCancel: false,
+            ifInputClicked:false,
+            ifHideShadow: true,
+            searchText:'',
+            selectedTab: 1
         }
     },
     computed: {
         lang() {
             return this.$i18n.locale
-        }
+        },
+        tabs() {
+            return [
+              {
+                id: 1,
+                text: this.$t('shelf.default'),
+                selected: true
+              },
+              {
+                id: 2,
+                text: this.$t('shelf.progress'),
+                selected: false
+              },
+              {
+                id: 3,
+                text: this.$t('shelf.purchase'),
+                selected: false
+              }
+            ]
+      }
     },
     methods : {
+        clearSearchText () {
+            this.searchText = ''
+        },
         onSearchClick () {
             this.ifInputClicked = true
+            this.setShelfTitleVisible(false)
         },
         onCancelClick () {
             this.ifInputClicked = false
+            this.setShelfTitleVisible(true)
+        },
+        onTabClick(id) {
+          // this.tabs.forEach(tab => {
+          //   if (tab.id === item.id) {
+          //     tab.selected = true
+          //   } else {
+          //     tab.selected = false
+          //   }
+          // })
+          // this.$emit('onTabClick', item.id)
+          // this.$forceUpdate()
+          this.selectedTab = id
+        },
+        showShadow() {
+          this.ifHideShadow = false
+        },
+        hideShadow() {
+          this.ifHideShadow = true
         },
         switchLocale () {
           if(this.lang === 'en') {
@@ -51,6 +110,7 @@ export default {
           } else {
               this.$i18n.locale = 'en'
           }
+          setLocalStorage('locale',this.$i18n.locale)
         }
     }
 }
@@ -73,7 +133,7 @@ export default {
     &.hide-shadow {
       box-shadow: none;
     }
-     .shelf-search {
+    .shelf-search {
       position: absolute;
       top: px2rem(42);
       left: 0;
@@ -141,6 +201,26 @@ export default {
         .cancel-btn {
           font-size: px2rem(14);
           color: $color-blue;
+        }
+      }
+    }
+    .tab-wrapper {
+      position: absolute;
+      top: px2rem(52);
+      left: 0;
+      z-index: 100;
+      display: flex;
+      width: 100%;
+      height: px2rem(42);
+      .tab-item {
+        flex: 1;
+        @include center;
+        .tab-item-text {
+          font-size: px2rem(12);
+          color: #999;
+          &.is-selected {
+            color: $color-blue;
+          }
         }
       }
     }

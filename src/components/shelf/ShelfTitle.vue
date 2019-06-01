@@ -1,6 +1,6 @@
 <template>
     <transition name="fade">
-        <div class="shelf-title-wrapper" v-show="shelfTitleVisible">
+        <div class="shelf-title-wrapper" v-show="shelfTitleVisible" :class="{'hide-shadow': ifHideShadow}">
             <div class="shelf-title-text-wrapper">
                 <span class="shelf-title-text">{{$t('shelf.title')}}</span>
                 <span class="shelf-title-sub-text" v-show="isEditMode" >{{selectedText}}</span>
@@ -25,6 +25,13 @@ export default {
             return selectedNumber === 0 ?  this.$t('shelf.selectBook') : 
             (this.selectedNumber === 1 ? this.$t('shelf.haveSelectedBook').replace('$1', this.selectedNumber) : this.$t('shelf.haveSelectedBooks').replace('$1', this.selectedNumber))
         }
+    },
+    data() {
+      return {
+        ifHideShadow: true,
+        ifGroupDialogShow: false,
+        isDeleteGroup: false
+      }
     },
     methods: {
         onEditClick () {
