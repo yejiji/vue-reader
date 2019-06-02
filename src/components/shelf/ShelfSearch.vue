@@ -1,5 +1,5 @@
 <template>
-    <div class="shelf-search-wrapper" :class="{'search-top' : ifInputClicked , 'hide-shadow': ifHideShadow}">
+    <div class="shelf-search-wrapper" :class="{'search-top' : ifInputClicked , 'hide-shadow': ifHideShadow }">
         <div class="shelf-search" :class="{'search-top' : ifInputClicked}">
             <div class="search-wrapper">
                 <div class="icon-search-wrapper">
@@ -112,13 +112,22 @@ export default {
           }
           setLocalStorage('locale',this.$i18n.locale)
         }
+    },
+    watch: {
+        offsetY(offsetY) {
+            if (offsetY > 0 && ifInputClicked) {
+                this.ifHideShadow = false 
+            } else {
+                this.ifHideShadow = true
+            }
+        }
     }
 }
 </script>
 <style lang="scss" scoped>
  @import "../../assets/styles/global";
  .shelf-search-wrapper {
-     position: relative;
+    position: relative;
     z-index: 105;
     width: 100%;
     height: px2rem(94);

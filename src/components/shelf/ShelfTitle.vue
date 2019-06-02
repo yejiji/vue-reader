@@ -40,6 +40,15 @@ export default {
         clearCache() {
             
         }
+    },
+    watch: {
+        offsetY(offsetY) {
+            if (offsetY > 0) {
+                this.ifHideShadow = false
+            } else {
+                this.ifHideShadow = true
+            }
+        }
     }
 }
 </script>
