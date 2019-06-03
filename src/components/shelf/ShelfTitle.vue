@@ -21,9 +21,7 @@ export default {
     computed: {
         selectedText() {
             const selectedNumber = this.shelfSelected ? this.shelfSelected.length : 0
-
-            return selectedNumber === 0 ?  this.$t('shelf.selectBook') : 
-            (this.selectedNumber === 1 ? this.$t('shelf.haveSelectedBook').replace('$1', this.selectedNumber) : this.$t('shelf.haveSelectedBooks').replace('$1', this.selectedNumber))
+             return selectedNumber  === 0 ? this.$t('shelf.selectBook') : (selectedNumber === 1 ? this.$t('shelf.haveSelectedBook').replace('$1', selectedNumber) : this.$t('shelf.haveSelectedBooks').replace('$1', selectedNumber))
         }
     },
     data() {
@@ -49,6 +47,9 @@ export default {
                 this.ifHideShadow = true
             }
         }
+    },
+    mounted() {
+        this.shelfSelected.length
     }
 }
 </script>

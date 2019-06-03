@@ -115,7 +115,7 @@ export default {
     },
     watch: {
         offsetY(offsetY) {
-            if (offsetY > 0 && ifInputClicked) {
+            if (offsetY > 0 && this.ifInputClicked) {
                 this.ifHideShadow = false 
             } else {
                 this.ifHideShadow = true
