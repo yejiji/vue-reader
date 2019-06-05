@@ -1,11 +1,11 @@
 <template>
     <div class="shelf-footer" v-show="isEditMode">
         <div class="shelf-footer-tab-wrappper" v-for="item in tabs" :key="item.index" @click="onTabClick(item)">
-            <div class="shelf-footer-tab">
-                <div class="icon-private tab-icon" v-if="item.index === 1" :class="{'is-selected': isSelected}" ></div>
-                <div class="icon-download tab-icon" v-if="item.index === 2" :class="{'is-selected': isSelected}"></div>
-                <div class="icon-move tab-icon" v-if="item.index === 3" :class="{'is-selected': isSelected}"></div>
-                <div class="icon-shelf tab-icon" v-if="item.index === 4" :class="{'is-selected': isSelected}"></div>
+            <div class="shelf-footer-tab" :class="{'is-selected': isSelected}">
+                <div class="icon-private tab-icon" v-if="item.index === 1"  ></div>
+                <div class="icon-download tab-icon" v-if="item.index === 2" ></div>
+                <div class="icon-move tab-icon" v-if="item.index === 3" ></div>
+                <div class="icon-shelf tab-icon" v-if="item.index === 4"></div>
                 <div class="tab-text">{{item.label}}</div>
             </div>
         </div>
@@ -17,11 +17,7 @@ export default {
     mixins: [storeShelfMixin],    
     computed: {
         isSelected() {
-            if (this.data) {
-                return this.data.some(item => item.selected)
-            } else {
-                return false
-            }
+            return this.shelfSelected && this.shelfSelected.length
         },
         tabs() {
             return [
@@ -49,7 +45,33 @@ export default {
     },
     methods: {
         onTabClick(item) {
-
+          const popup =  this.popup({
+             title: '标题',
+             btn:[
+               {
+                 text:'确认',
+                 click: () => {
+                   this.toast({text:'正在确认'}).show()
+                   popup.hide()
+                 }
+               },
+               {
+                 text:'取消',
+                 click: () => {
+                   this.toast({text:'正在取消'}).show()
+                   popup.hide()
+                 }
+               },{
+                 text:'删除',
+                 type:'danger',
+                 click: () => {
+                   this.toast({text:'正在删除'}).show()
+                   popup.hide()
+                 }
+               }
+             ]
+             })
+          popup.show()   
         }
     }
 }
@@ -73,11 +95,14 @@ export default {
       .shelf-footer-tab {
         width: 100%;
         height: 100%;
+        opacity: .5;
         @include columnCenter;
+        &.is-selected {
+            opacity: 1;
+          }
         .tab-icon {
           font-size: px2rem(20);
           color: #666;
-          opacity: .5;
           &.icon-shelf {
             color: $color-pink;
           }
@@ -92,7 +117,6 @@ export default {
           margin-top: px2rem(5);
           font-size: px2rem(12);
           color: #666;
-          opacity: .5;
           &.remove-text {
             color: $color-pink;
           }
