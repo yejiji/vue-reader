@@ -125,4 +125,12 @@ export function getHome() {
   export function saveFontSize(fileName, fontSize) {
     setBookObject(fileName, 'fontSize', fontSize)
   }
+
+  export function saveBookShelf(shelf) {
+    return setLocalStorage('shelf',shelf)
+  }
+
+  export function getBookShelf(shelf) {
+    return getLocalStorage(shelf)
+  }
   

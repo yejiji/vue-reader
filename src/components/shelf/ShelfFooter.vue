@@ -2,17 +2,20 @@
     <div class="shelf-footer" v-show="isEditMode">
         <div class="shelf-footer-tab-wrappper" v-for="item in tabs" :key="item.index" @click="onTabClick(item)">
             <div class="shelf-footer-tab" :class="{'is-selected': isSelected}">
-                <div class="icon-private tab-icon" v-if="item.index === 1"  ></div>
+                <div class="icon-private tab-icon" v-if="item.index === 1 && !isPrivate"  ></div>
+                <div class="icon-private-see tab-icon" v-if="item.index === 1 && isPrivate"  ></div>
                 <div class="icon-download tab-icon" v-if="item.index === 2" ></div>
                 <div class="icon-move tab-icon" v-if="item.index === 3" ></div>
                 <div class="icon-shelf tab-icon" v-if="item.index === 4"></div>
-                <div class="tab-text">{{item.label}}</div>
+                <div class="tab-text">{{label(item)}}</div>
             </div>
         </div>
     </div>
 </template>
 <script>
 import { storeShelfMixin } from '../../utils/mixin'
+import {saveBookShelf} from '../../utils/localStorage'
+
 export default {
     mixins: [storeShelfMixin],    
     computed: {
@@ -41,37 +44,89 @@ export default {
                 }
                 
             ]
+        },
+        isPrivate() {
+          if (!this.isSelected) {
+            return false
+          } else {
+            return this.shelfSelected.every(item => item.private)
+          }
         }
     },
+    data() {
+      return {
+        popupMenu: null
+      }
+    },
     methods: {
-        onTabClick(item) {
-          const popup =  this.popup({
-             title: '标题',
+        setPrivate () {
+          let isPrivate
+          if (this.isPrivate) {
+            isPrivate = false
+          } else {
+            isPrivate = true
+          }
+          this.shelfSelected.forEach(book => {
+            book.private = isPrivate
+          })
+          this.hidePopup()
+          this.setIsEditMode(false)
+          saveBookShelf(this.shelfList)
+          if (isPrivate) {
+            this.simpleToast(this.$t('shelf.setPrivateSuccess'))
+          } else {
+            this.simpleToast(this.$t('shelf.closePrivateSuccess'))
+          }
+        },
+        hidePopup () {
+          this.popupMenu.hide()
+        },
+        showPrivate() {
+            this.popupMenu =  this.popup({
+             title: this.$t('shelf.setPrivateTitle'),
              btn:[
                {
-                 text:'确认',
+                 text: this.$t('shelf.open'),
                  click: () => {
-                   this.toast({text:'正在确认'}).show()
-                   popup.hide()
+                   this.setPrivate()
                  }
                },
                {
-                 text:'取消',
+                 text:this.$t('shelf.cancel'),
                  click: () => {
-                   this.toast({text:'正在取消'}).show()
-                   popup.hide()
-                 }
-               },{
-                 text:'删除',
-                 type:'danger',
-                 click: () => {
-                   this.toast({text:'正在删除'}).show()
-                   popup.hide()
+                   this.hidePopup()
                  }
                }
              ]
-             })
-          popup.show()   
+             }).show()
+        
+        },
+        onTabClick(item) {
+          if (!this.isSelected) {
+            return
+          } switch (item.index) {
+            case 1:
+              this.showPrivate()
+              break
+            case 2:
+              break
+            case 3:
+              break
+            case 4:
+              break
+            default:
+              break        
+          }
+ 
+        },
+        label (item) {
+          switch (item.index) {
+            case 1:
+              return this.isPrivate ? item.label2 : item.label
+              break
+            default:
+              return item.label
+          }
         }
     }
 }
