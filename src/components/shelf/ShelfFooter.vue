@@ -4,10 +4,11 @@
             <div class="shelf-footer-tab" :class="{'is-selected': isSelected}">
                 <div class="icon-private tab-icon" v-if="item.index === 1 && !isPrivate"  ></div>
                 <div class="icon-private-see tab-icon" v-if="item.index === 1 && isPrivate"  ></div>
-                <div class="icon-download tab-icon" v-if="item.index === 2" ></div>
+                <div class="icon-download tab-icon" v-if="item.index === 2 && !isDownload" ></div>
+                <div class="icon-download-remove tab-icon" v-if="item.index === 2 && isDownload"  ></div>
                 <div class="icon-move tab-icon" v-if="item.index === 3" ></div>
                 <div class="icon-shelf tab-icon" v-if="item.index === 4"></div>
-                <div class="tab-text">{{label(item)}}</div>
+                <div class="tab-text" :class="{'remove-text' : item.index === 4 }">{{label(item)}}</div>
             </div>
         </div>
     </div>
@@ -15,6 +16,8 @@
 <script>
 import { storeShelfMixin } from '../../utils/mixin'
 import {saveBookShelf} from '../../utils/localStorage'
+import { Promise, reject } from 'q';
+import { resolve } from 'dns';
 
 export default {
     mixins: [storeShelfMixin],    
@@ -51,6 +54,13 @@ export default {
           } else {
             return this.shelfSelected.every(item => item.private)
           }
+        },
+        isDownload () {
+          if (!this.isSelected) {
+            return false
+          } else {
+            return this.shelfSelected.every(item => item.cache)
+          }
         }
     },
     data() {
@@ -59,6 +69,23 @@ export default {
       }
     },
     methods: {
+        onComplete () {
+          this.hidePopup()
+          this.setIsEditMode(false)
+          saveBookShelf(this.shelfList)
+        },
+        downloadSelectedBook () {
+          for (let i = 0; i < this.shelfSelected.length; i++) {
+            this.downloadBook(this.shelfSelected[i])
+          }
+        },
+        downloadBook (book) {
+          return new Promise((resolve,reject) => {
+            download(book, () => {
+              
+            })
+          })
+        },
         setPrivate () {
           let isPrivate
           if (this.isPrivate) {
@@ -69,24 +96,48 @@ export default {
           this.shelfSelected.forEach(book => {
             book.private = isPrivate
           })
-          this.hidePopup()
-          this.setIsEditMode(false)
-          saveBookShelf(this.shelfList)
+          this.onComplete()
           if (isPrivate) {
             this.simpleToast(this.$t('shelf.setPrivateSuccess'))
           } else {
             this.simpleToast(this.$t('shelf.closePrivateSuccess'))
           }
         },
+        setDownload () {
+          // let isDownload
+          // if (this.isDownload) {
+          //   isDownload = false
+          // } else {
+          //   isDownload = true
+          // }
+          // this.shelfSelected.forEach(book => {
+          //   book.cache = isDownload
+          // })
+          this.downloadSelectedBook()
+          this.onComplete()
+          // if (isDownload) {
+          //   this.simpleToast(this.$t('shelf.setDownloadSuccess'))
+          // } else {
+          //   this.simpleToast(this.$t('shelf.removeDownloadSuccess'))
+          // }
+        },
+        removeSelected () {
+          this.shelfSelected.forEach(selected => {
+            this.setShelfList(this.shelfList.filter(book => book !== selected))
+          })
+          this.setShelfSelected([])
+          this.onComplete()
+
+        },
         hidePopup () {
           this.popupMenu.hide()
         },
         showPrivate() {
             this.popupMenu =  this.popup({
-             title: this.$t('shelf.setPrivateTitle'),
+             title: this.isPrivate ? this.$t('shelf.closePrivateTitle') : this.$t('shelf.setPrivateTitle'),
              btn:[
                {
-                 text: this.$t('shelf.open'),
+                 text: this.isPrivate ? this.$t('shelf.close') : this.$t('shelf.open'),
                  click: () => {
                    this.setPrivate()
                  }
@@ -101,6 +152,51 @@ export default {
              }).show()
         
         },
+        showDownload () {
+            this.popupMenu =  this.popup({
+             title: this.isDownload ? this.$t('shelf.removeDownloadTitle') : this.$t('shelf.setDownloadTitle'),
+             btn:[
+               {
+                 text: this.isPrivate ? this.$t('shelf.delete') : this.$t('shelf.open'),
+                 click: () => {
+                   this.setDownload()
+                 }
+               },
+               {
+                 text:this.$t('shelf.cancel'),
+                 click: () => {
+                   this.hidePopup()
+                 }
+               }
+             ]
+             }).show()
+        },
+        showRemove () {
+          let title
+          if (this.shelfSelected.length === 1) {
+            title = this.$t('shelf.removeBookTitle').replace('$1',`《${this.shelfSelected[0].title}》`)
+          } else {
+            title = this.$t('shelf.removeBookTitle').replace('$1',this.$t('shelf.selectedBooks'))
+          }
+          this.popupMenu =  this.popup({
+             title: title,
+             btn:[
+               {
+                 text: this.$t('shelf.removeBook'),
+                 type: 'danger',
+                 click: () => {
+                   this.removeSelected()
+                 }
+               },
+               {
+                 text:this.$t('shelf.cancel'),
+                 click: () => {
+                   this.hidePopup()
+                 }
+               }
+             ]
+             }).show()
+        },
         onTabClick(item) {
           if (!this.isSelected) {
             return
@@ -109,10 +205,12 @@ export default {
               this.showPrivate()
               break
             case 2:
+              this.showDownload()
               break
             case 3:
               break
             case 4:
+              this.showRemove()
               break
             default:
               break        
@@ -124,6 +222,9 @@ export default {
             case 1:
               return this.isPrivate ? item.label2 : item.label
               break
+            case 2:
+              return this.isDownload ? item.label2 : item.label
+              break   
             default:
               return item.label
           }
