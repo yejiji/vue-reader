@@ -15,9 +15,11 @@
 </template>
 <script>
 import { storeShelfMixin } from '../../utils/mixin'
-import {saveBookShelf} from '../../utils/localStorage'
-import { Promise, reject } from 'q';
+import {saveBookShelf, removeLocalStorage} from '../../utils/localStorage'
+import { download } from '../../api/store'
 import { resolve } from 'dns';
+import { reject, Promise } from 'q';
+import { removeLocalForage } from '../../utils/localForage';
 
 export default {
     mixins: [storeShelfMixin],    
@@ -74,16 +76,45 @@ export default {
           this.setIsEditMode(false)
           saveBookShelf(this.shelfList)
         },
-        downloadSelectedBook () {
+        async  downloadSelectedBook () {
           for (let i = 0; i < this.shelfSelected.length; i++) {
-            this.downloadBook(this.shelfSelected[i])
+            await this.downloadBook(this.shelfSelected[i]).then(book => {
+              book.cache = true
+            })
           }
         },
+        removeSelectedBook() {
+          Promise.all(this.shelfSelected.map(book => this.removeBook(book)))
+          .then(books => {
+            books.map(book => {
+              book.cache = false
+            })
+            saveBookShelf(this.shelfList)
+            this.simpleToast(this.$t('shelf.removeDownloadSuccess'))
+          })
+        },
         downloadBook (book) {
+          let text = ''
+          const toast = this.toast({
+            text
+          })
+          toast.continueShow()
           return new Promise((resolve,reject) => {
             download(book, () => {
-              
+              toast.remove()
+              resolve(book)
+            }, reject,ProgressEvent => {
+              const progress = Math.floor(ProgressEvent.loaded / ProgressEvent.total * 100) + '%' 
+              text = this.$t('shelf.progressDonwload').replace('$1',`${book.fileName}.epub(${progress})`)
+              toast.updateText(text)
             })
+          })
+        },
+        removeBook (book) {
+          return new Promise((resolve,reject) => {
+            removeLocalStorage(`${book.categoryText}/${book.fileName}-info`)
+            removeLocalForage(`${book.fileName}`)
+            resolve(book)
           })
         },
         setPrivate () {
@@ -103,23 +134,19 @@ export default {
             this.simpleToast(this.$t('shelf.closePrivateSuccess'))
           }
         },
-        setDownload () {
-          // let isDownload
-          // if (this.isDownload) {
-          //   isDownload = false
-          // } else {
-          //   isDownload = true
-          // }
-          // this.shelfSelected.forEach(book => {
-          //   book.cache = isDownload
-          // })
+        async  setDownload () {
+
+          if (this.isDownload) {
+            this.removeSelectedBook()
+            
+          } else {
+            await  this.downloadSelectedBook()
+            saveBookShelf(this.shelfList)
+            this.simpleToast(this.$t('shelf.setDownloadSuccess'))
+          }
           this.downloadSelectedBook()
           this.onComplete()
-          // if (isDownload) {
-          //   this.simpleToast(this.$t('shelf.setDownloadSuccess'))
-          // } else {
-          //   this.simpleToast(this.$t('shelf.removeDownloadSuccess'))
-          // }
+    
         },
         removeSelected () {
           this.shelfSelected.forEach(selected => {
