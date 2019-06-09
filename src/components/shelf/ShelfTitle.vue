@@ -16,6 +16,8 @@
 </template>
 <script>
 import { storeShelfMixin } from '../../utils/mixin'
+import { clearLocalStorage } from '../../utils/localStorage';
+import { clearLocalForage } from '../../utils/localForage'
 export default {
     mixins: [storeShelfMixin],
     computed: {
@@ -42,7 +44,12 @@ export default {
             this.setIsEditMode(!this.isEditMode)
         },
         clearCache() {
-            
+            clearLocalStorage()
+            clearLocalForage()
+            this.setShelfList([])
+            this.setShelfSelected([])
+            this.getShelfList()
+            this.simpleToast(this.$t('shelf.clearCacheSuccess'))
         }
     },
     watch: {

@@ -15,6 +15,7 @@ import { ebookMixin } from '../../utils/mixin'
 import { flatten } from '../../utils/book'
 import { saveFontSize, getFontSize, saveFontFamily, getFontFamily, getTheme, saveTheme, getLocation } from '../../utils/localStorage'
 import Epub from 'epubjs'
+import { getLocalForage } from '../../utils/localForage';
 global.ePub = Epub
 export default {
     mixins: [ebookMixin],
@@ -199,8 +200,8 @@ export default {
                 this.setNavigation(navItme)
             })
         },
-        initEpub () {
-            const url = process.env.VUE_APP_RES_URL+'/epub/'+ this.fileName + '.epub'
+        initEpub (url) {
+            
             this.book = new Epub(url)
             this.setCurrentBook(this.book)
             this.initRendtion()            
@@ -238,10 +239,22 @@ export default {
             })        
         }
     },
-    mounted() {     
-        this.setFileName(this.$route.params.fileName.split('|').join('/')).then(() => {
-            this.initEpub() 
-        }) 
+    mounted() {    
+        const books =  this.$route.params.fileName.split('|')
+        const fileName = books[1]
+        getLocalForage(fileName,(err, blob) => {
+            if (!err && blob) {
+                this.setFileName(books.join('/')).then( ()=> {
+                    this.initEpub(blob)
+                })
+            } else {
+                this.setFileName(books.join('/')).then(() => {
+                const url = process.env.VUE_APP_RES_URL+'/epub/'+ this.fileName + '.epub'
+                this.initEpub(url) 
+                })     
+            }
+        })
+        
         
 
     }
