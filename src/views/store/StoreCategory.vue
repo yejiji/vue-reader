@@ -6,15 +6,14 @@
                 :bottom="scrollBottom"
                 @onScroll="onScroll"
                 ref="scroll">
-            <shelf-search></shelf-search>
-            <shelf-list :data="shelfList"></shelf-list>
+
+            <shelf-list :top="42"></shelf-list>
         </scroll>
         <shelf-footer></shelf-footer>
     </div>
 </template>
 <script>
 import ShelfTitle from '../../components/shelf/ShelfTitle'
-import ShelfSearch from '../../components/shelf/ShelfSearch'
 import ShelfList from '../../components/shelf/ShelfList'
 import ShelfFooter from '../../components/shelf/ShelfFooter'
 import Scroll from '../../components/common/Scroll'
@@ -30,7 +29,6 @@ export default {
     components: {
         ShelfTitle,
         Scroll,
-        ShelfSearch,
         ShelfList,
         ShelfFooter
     },

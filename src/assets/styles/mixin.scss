@@ -73,6 +73,11 @@ $homeAnimationType: linear;
   bottom: 0;
   margin: auto;            
 }
+@mixin  leftBottom {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
 .icon {
   color: #666;
   font-size: px2rem(16);

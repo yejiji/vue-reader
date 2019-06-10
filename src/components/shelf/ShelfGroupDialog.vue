@@ -131,8 +131,10 @@
         }
         const list = removeAddFromShelf(this.shelfList)
         list.push(group)
-        this.setShelfList(appendAddToShelf(list))
-        this.onComplete()
+        this.setShelfList(appendAddToShelf(list)).then(() => {
+          this.onComplete()
+        })
+        
       },
       onComplete() {
         saveBookShelf(this.shelfList)
