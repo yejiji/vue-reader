@@ -2,14 +2,17 @@
     <transition name="fade">
         <div class="shelf-title-wrapper" v-show="shelfTitleVisible" :class="{'hide-shadow': ifHideShadow}">
             <div class="shelf-title-text-wrapper">
-                <span class="shelf-title-text">{{$t('shelf.title')}}</span>
+                <span class="shelf-title-text">{{title}}</span>
                 <span class="shelf-title-sub-text" v-show="isEditMode" >{{selectedText}}</span>
             </div>
-            <div class="shelf-title-btn-wrapper shelf-title-left">
+            <div class="shelf-title-btn-wrapper shelf-title-left" v-if="!ifShowBack">
                 <span class="shelf-title-btn-text" @click="clearCache">{{$t('shelf.clearCache')}}</span>
             </div>
             <div class="shelf-title-btn-wrapper shelf-title-right" @click="onEditClick">
                 <span class="shelf-title-btn-text">{{isEditMode ? $t('shelf.cancel') : $t('shelf.edit')}}</span>
+            </div>
+            <div class="shelf-title-btn-wrapper shelf-title-left" @click="back" v-if="ifShowBack && !isEditMode">
+                <span class="icon-back"></span>
             </div>
         </div>
     </transition>
@@ -26,6 +29,13 @@ export default {
              return selectedNumber  === 0 ? this.$t('shelf.selectBook') : (selectedNumber === 1 ? this.$t('shelf.haveSelectedBook').replace('$1', selectedNumber) : this.$t('shelf.haveSelectedBooks').replace('$1', selectedNumber))
         }
     },
+    props: {
+        title: String,
+        ifShowBack: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
       return {
         ifHideShadow: true,
@@ -34,11 +44,19 @@ export default {
       }
     },
     methods: {
+        back () {
+            this.$router.go(-1)
+        },
         onEditClick () {
             if (!this.isEditMode) {
                 this.setShelfSelected([])
                 this.shelfList.forEach(item => {
                     item.selected = false
+                    if (item.itemList) {
+                        item.itemList.forEach(subItem => {
+                            subItem.selected = false
+                        })
+                    }
                 })
             }
             this.setIsEditMode(!this.isEditMode)
@@ -106,6 +124,10 @@ export default {
         @include center;
         .shelf-title-btn-text{
             font-size: px2rem(14);
+            color: #666;
+        }
+        &.icon-back {
+            font-size: px2rem(20);
             color: #666;
         }
         &.shelf-title-left{

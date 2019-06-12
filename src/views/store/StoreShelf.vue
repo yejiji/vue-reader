@@ -1,6 +1,6 @@
 <template>
     <div class="store-shelf">
-        <shelf-title></shelf-title>
+        <shelf-title :title="$t('shelf.title')"></shelf-title>
         <scroll class="store-shelf-scroll-wrapper"
                 :top="0"
                 :bottom="scrollBottom"
@@ -41,6 +41,8 @@ export default {
     },
     mounted() {
         this.getShelfList()
+        this.setShelfCategory([])
+        this.setCurrentType(1)
     },
     watch: {
         isEditMode(isEditMode) {
