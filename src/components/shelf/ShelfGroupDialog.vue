@@ -8,7 +8,7 @@
            @click="onGroupClick(item)"
            v-if="(item.edit === 2 && isInGroup) || item.edit !== 2 || !item.edit">
         <div class="dialog-list-item-text">{{item.title}}</div>
-        <div class="dialog-list-icon-wrapper" v-if="category && item.id ? category.id === item.id : false">
+        <div class="dialog-list-icon-wrapper" v-if=" isInGroup && shelfCategory.id === item.id">
           <span class="icon-check"></span>
         </div>
       </div>
@@ -38,7 +38,7 @@
 <script>
   import EbookDialog from '../common/Dialog'
   import { storeShelfMixin } from '../../utils/mixin'
-  import { removeAddFromShelf, appendAddToShelf } from '../../utils/store'
+  import { removeAddFromShelf, appendAddToShelf, computeId } from '../../utils/store'
   import { saveBookShelf } from '../../utils/localStorage'
 
   export default {
@@ -47,13 +47,10 @@
     components: {
       EbookDialog
     },
-    props: {
-      isInGroup: {
-        type: Boolean,
-        default: false
-      }
-    },
     computed: {
+      isInGroup () {
+        return this.currentType === 2
+      },
       defaultCategory() {
         return [
           {
@@ -104,7 +101,13 @@
       },
       moveToGroup(group) {
         this.setShelfList(this.shelfList
-          .filter(book => this.shelfSelected.indexOf(book) < 0))
+          .filter(book => {
+            if (book.itemList) {
+              book.itemList = book.itemList.filter(subBook => 
+              this.shelfSelected.indexOf(subBook)< 0)
+            }
+            return this.shelfSelected.indexOf(book) < 0
+          }))
           .then(() => {
             if (group && group.itemList) {
               group.itemList = [...group.itemList, ...this.shelfSelected]
@@ -116,7 +119,22 @@
             this.onComplete()
           })
       },
-      moveOutFromGroup(item) {
+      moveOutFromGroup() {
+        this.setShelfList(this.shelfList.map(book => {
+          if (book.type === 2 && book.itemList) {
+            book.itemList = book.itemList.filter(subBook => !subBook.selected)
+          }
+          return book
+        })).then(() => {
+          let list = removeAddFromShelf(this.shelfList)
+          list = [].concat(list,...this.shelfSelected)
+          list = appendAddToShelf(list)
+          list = computeId(list)
+          this.setShelfList(list).then(() => {
+            this.simpleToast(this.$t('shelf.moveBookOutSuccess'))
+            this.onComplete()
+          }) 
+        })
       },
       createNewGroup() {
         if (!this.newGroupName && this.newGroupName.length === 0) {
