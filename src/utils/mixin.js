@@ -30,11 +30,11 @@ export const storeShelfMixin = {
             gotoBookDetail(this,book)
         },
         getCategoryList (title) {
-            this.getShelfList().then(() => {
-                const categoryList = this.shelfList.filter( book => 
-                    book.type === 2 && book.title === title)[0]
-                    this.setShelfCategory(categoryList)
-            })
+            this.getShelfList()
+            const categoryList = this.shelfList.filter( book => 
+                book.type === 2 && book.title === title)[0]
+                this.setShelfCategory(categoryList)
+            
         },
         getShelfList () {
             let shelfList = getBookShelf()
@@ -43,11 +43,11 @@ export const storeShelfMixin = {
                 if (response.status === 200 && response.data && response.data.bookList) {
                     shelfList = appendAddToShelf(response.data.bookList)
                     saveBookShelf(shelfList)
-                    this.setShelfList(shelfList)
+                    return this.setShelfList(shelfList)
                         }
                     })
             } else {
-                return  this.setShelfList(shelfList)
+                return this.setShelfList(shelfList)
             }
         }
         

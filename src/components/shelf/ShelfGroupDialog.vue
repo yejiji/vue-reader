@@ -40,12 +40,22 @@
   import { storeShelfMixin } from '../../utils/mixin'
   import { removeAddFromShelf, appendAddToShelf, computeId } from '../../utils/store'
   import { saveBookShelf } from '../../utils/localStorage'
+import { setTimeout } from 'timers';
 
   export default {
     name: 'group-dialog',
     mixins: [storeShelfMixin],
     components: {
       EbookDialog
+    },
+    props: {
+      showNewGroup: {
+        type:Boolean,
+        default:false
+      },
+      groupName: {
+        type:String,
+      }
     },
     computed: {
       isInGroup () {
@@ -81,11 +91,16 @@
     },
     methods: {
       show() {
+        this.ifNewGroup = this.showNewGroup
+        this.newGroupName = this.groupName
         this.$refs.dialog.show()
       },
       hide() {
         this.$refs.dialog.hide()
-        this.ifNewGroup = false
+        setTimeout(() => {
+          this.ifNewGroup = false
+        },200)
+        
       },
       onGroupClick(item) {
         if (item.edit && item.edit === 1) {
@@ -137,21 +152,26 @@
         })
       },
       createNewGroup() {
-        if (!this.newGroupName && this.newGroupName.length === 0) {
+        if (!this.newGroupName || this.newGroupName.length === 0) {
           return
         }
-        const group = {
+        if (this.showNewGroup) {
+          this.shelfCategory.title = this.newGroupName
+        } else {
+          const group = {
           id: this.shelfList[this.shelfList.length - 2].id + 1,
           itemList: [],
           selected: false,
           title: this.newGroupName,
           type: 2
+          }
+          const list = removeAddFromShelf(this.shelfList)
+          list.push(group)
+          this.setShelfList(appendAddToShelf(list)).then(() => {
+            this.onComplete()
+          })
         }
-        const list = removeAddFromShelf(this.shelfList)
-        list.push(group)
-        this.setShelfList(appendAddToShelf(list)).then(() => {
-          this.onComplete()
-        })
+        
         
       },
       onComplete() {

@@ -5,14 +5,18 @@
                 <span class="shelf-title-text">{{title}}</span>
                 <span class="shelf-title-sub-text" v-show="isEditMode" >{{selectedText}}</span>
             </div>
-            <div class="shelf-title-btn-wrapper shelf-title-left" v-if="!ifShowBack">
+            <div class="shelf-title-btn-wrapper shelf-title-left" v-if="ShowClear">
                 <span class="shelf-title-btn-text" @click="clearCache">{{$t('shelf.clearCache')}}</span>
             </div>
-            <div class="shelf-title-btn-wrapper shelf-title-right" @click="onEditClick">
+            <div class="shelf-title-btn-wrapper shelf-title-right" @click="onEditClick" v-if="showEdit">
                 <span class="shelf-title-btn-text">{{isEditMode ? $t('shelf.cancel') : $t('shelf.edit')}}</span>
             </div>
-            <div class="shelf-title-btn-wrapper shelf-title-left" @click="back" v-if="ifShowBack && !isEditMode">
+            <div class="shelf-title-btn-wrapper shelf-title-left" @click="back" v-if="ShowBack && !isEditMode">
                 <span class="icon-back"></span>
+            </div>
+            <div class="shelf-title-btn-wrapper" :class="{'shelf-title-left':changeGroupLeft,'shelf-title-right':changeGroupRight}"
+             @click="changeGroup" v-if="showChangeGroup">
+                <span class="shelf-title-btn-text">{{$t('shelf.editGroup')}}</span>
             </div>
         </div>
     </transition>
@@ -24,17 +28,35 @@ import { clearLocalForage } from '../../utils/localForage'
 export default {
     mixins: [storeShelfMixin],
     computed: {
+        emptyCategory() {
+            return !this.shelfCategory || this.shelfCategory.itemList ||
+            this.shelfCategory.itemList.length === 0
+        },
+        showEdit() {
+            return this.currentType === 1
+        },
+        ShowClear() {
+            return this.currentType === 1
+        },
+        ShowBack() {
+            return this.currentType === 2 && this.isEditMode === false
+        },
+        showChangeGroup() {
+            return this.currentType === 2 && (this.isEditMode || this.emptyCategory )
+        },
+        changeGroupLeft() {
+            return !this.emptyCategory
+        },
+        changeGroupRight() {
+            return this.emptyCategory
+        },
         selectedText() {
             const selectedNumber = this.shelfSelected ? this.shelfSelected.length : 0
              return selectedNumber  === 0 ? this.$t('shelf.selectBook') : (selectedNumber === 1 ? this.$t('shelf.haveSelectedBook').replace('$1', selectedNumber) : this.$t('shelf.haveSelectedBooks').replace('$1', selectedNumber))
         }
     },
     props: {
-        title: String,
-        ifShowBack: {
-            type: Boolean,
-            default: false
-        }
+        title: String
     },
     data() {
       return {
@@ -69,6 +91,44 @@ export default {
             this.setShelfSelected([])
             this.getShelfList()
             this.simpleToast(this.$t('shelf.clearCacheSuccess'))
+        },
+        changeGroupName () {
+            this.hidePopup()
+            this.dialog({
+                showNewGroup: true,
+                groupName:this.shelfCategory.title
+            })
+        },
+        showDeleteGroup () {
+
+        },
+        popupCancelBtn () {
+            this.createPopupBtn(this.$t('shelf.cancel'), () => {
+                this.showDeleteGroup()
+            })
+        },
+        hidePopup() {
+            this.popupMenu.hide()
+        },
+        createPopupBtn(text,onClick,type= "normal" ) {
+            return {
+                text: text,
+                type: type,
+                click: onClick
+            }
+        },
+        changeGroup () {
+            this.popupMenu = this.popip({
+                btn: [
+                    this.createPopupBtn(this.$t('shelf.editGroupName'), () => {
+                        this.changeGroupName()
+                    }),
+                    this.createPopupBtn(this.$t('shelf.deleteGroup'), () => {
+                        this.showDeleteGroup()
+                    },'danger'),
+                    this.popupCancelBtn()
+                ]
+            }).show()
         }
     },
     watch: {
@@ -127,10 +187,10 @@ export default {
             font-size: px2rem(14);
             color: #666;
         }
-        &.icon-back {
+        .icon-back {
             font-size: px2rem(20);
             color: #666;
-        }
+            }
         &.shelf-title-left{
             left: 0;
             padding-left: px2rem(16.5);

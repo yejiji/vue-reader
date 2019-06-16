@@ -17,8 +17,6 @@
 import { storeShelfMixin } from '../../utils/mixin'
 import {saveBookShelf, removeLocalStorage} from '../../utils/localStorage'
 import { download } from '../../api/store'
-import { resolve } from 'dns';
-import { reject, Promise } from 'q';
 import { removeLocalForage } from '../../utils/localForage';
 
 export default {

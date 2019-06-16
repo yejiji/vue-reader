@@ -1,7 +1,6 @@
 <template>
     <div class="store-shelf">
         <shelf-title :title="shelfCategory.title"
-        :ifShowBack="true"
         ></shelf-title>
         <scroll class="store-shelf-scroll-wrapper"
                 :top="0"
@@ -49,7 +48,7 @@ export default {
         }   
     },
     mounted() {
-        this.getCategoryList(this.$router.query.title)
+        this.getCategoryList(this.$route.query.title)
         this.setCurrentType(2)
     },
     watch: {

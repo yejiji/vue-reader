@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { on } from 'cluster';
 import {setLocalForage} from '../utils/localForage'
 export function Home() {
     return axios ({
