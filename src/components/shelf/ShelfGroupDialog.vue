@@ -20,7 +20,7 @@
       <div class="dialog-input-wrapper">
         <div class="dialog-input-inner-wrapper">
           <input type="text" class="dialog-input" v-model="newGroupName" ref="dialogInput">
-          <div class="dialog-input-clear-wrapper" @click="clear" v-show="newGroupName.length > 0">
+          <div class="dialog-input-clear-wrapper" @click="clear" v-show="newGroupName && newGroupName.length > 0">
             <span class="icon-close-circle-fill"></span>
           </div>
         </div>
@@ -28,7 +28,7 @@
     </div>
     <div slot="btn" class="group-dialog-btn-wrapper">
       <div class="dialog-btn" @click="hide">{{$t('shelf.cancel')}}</div>
-      <div class="dialog-btn" @click="createNewGroup" :class="{'is-empty': newGroupName.length === 0}"
+      <div class="dialog-btn" @click="createNewGroup" :class="{'is-empty': newGroupName && newGroupName.length === 0}"
            v-if="ifNewGroup">{{$t('shelf.confirm')}}
       </div>
     </div>
@@ -38,7 +38,7 @@
 <script>
   import EbookDialog from '../common/Dialog'
   import { storeShelfMixin } from '../../utils/mixin'
-  import { removeAddFromShelf, appendAddToShelf, computeId } from '../../utils/store'
+  import { removeAddFromShelf, appendAddToShelf } from '../../utils/store'
   import { saveBookShelf } from '../../utils/localStorage'
 import { setTimeout } from 'timers';
 
@@ -135,21 +135,7 @@ import { setTimeout } from 'timers';
           })
       },
       moveOutFromGroup() {
-        this.setShelfList(this.shelfList.map(book => {
-          if (book.type === 2 && book.itemList) {
-            book.itemList = book.itemList.filter(subBook => !subBook.selected)
-          }
-          return book
-        })).then(() => {
-          let list = removeAddFromShelf(this.shelfList)
-          list = [].concat(list,...this.shelfSelected)
-          list = appendAddToShelf(list)
-          list = computeId(list)
-          this.setShelfList(list).then(() => {
-            this.simpleToast(this.$t('shelf.moveBookOutSuccess'))
-            this.onComplete()
-          }) 
-        })
+        this.moveOutGroup(this.onComplete)
       },
       createNewGroup() {
         if (!this.newGroupName || this.newGroupName.length === 0) {
@@ -157,6 +143,7 @@ import { setTimeout } from 'timers';
         }
         if (this.showNewGroup) {
           this.shelfCategory.title = this.newGroupName
+          this.onComplete()
         } else {
           const group = {
           id: this.shelfList[this.shelfList.length - 2].id + 1,
@@ -165,11 +152,14 @@ import { setTimeout } from 'timers';
           title: this.newGroupName,
           type: 2
           }
-          const list = removeAddFromShelf(this.shelfList)
+          let list = removeAddFromShelf(this.shelfList)
           list.push(group)
-          this.setShelfList(appendAddToShelf(list)).then(() => {
-            this.onComplete()
+          list = appendAddToShelf(list)
+          this.setShelfList(list).then(() => {
+            this.moveToGroup(group)
           })
+          
+   
         }
         
         

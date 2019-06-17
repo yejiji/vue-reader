@@ -23,8 +23,9 @@
 </template>
 <script>
 import { storeShelfMixin } from '../../utils/mixin'
-import { clearLocalStorage } from '../../utils/localStorage';
+import { clearLocalStorage, saveBookShelf } from '../../utils/localStorage';
 import { clearLocalForage } from '../../utils/localForage'
+import { setTimeout } from 'timers';
 export default {
     mixins: [storeShelfMixin],
     computed: {
@@ -99,8 +100,35 @@ export default {
                 groupName:this.shelfCategory.title
             })
         },
+        onComplete () {
+            this.hidePopup()
+            this.setShelfList(this.shelfList.filter(book => book.id != this.shelfCategory.id))
+            .then(() => {
+                saveBookShelf(this.shelfList)
+            })
+        },
+        deleteGroup () {
+            if (!this.emptyCategory) {
+                this.setShelfSelected(this.shelfCategory.itemList)
+                this.moveOutGroup(this.onComplete)
+            } else {
+                this.onComplete()
+            }
+        },
         showDeleteGroup () {
-
+            this.hidePopup()
+            setTimeout(() => {
+                this.popupMenu = this.popup({
+                title:this.$t('shelf.deleteGroupTitle'),
+                btn: [
+                    this.createPopupBtn(this.$t('shelf.confirm'),() => {
+                       this.deleteGroup() 
+                    },'danger'),
+                    this.popupCancelBtn()
+                ]
+                }).show()
+            },200)
+            
         },
         popupCancelBtn () {
             this.createPopupBtn(this.$t('shelf.cancel'), () => {
@@ -118,7 +146,7 @@ export default {
             }
         },
         changeGroup () {
-            this.popupMenu = this.popip({
+            this.popupMenu = this.popup({
                 btn: [
                     this.createPopupBtn(this.$t('shelf.editGroupName'), () => {
                         this.changeGroupName()
