@@ -1,4 +1,4 @@
-import { getLocalStorage } from './localStorage'
+import { getLocalStorage, getBookShelf,saveBookShelf } from './localStorage'
 export const flapCardList = [
   {
     r: 255,
@@ -56,6 +56,25 @@ export const flapCardList = [
     rotateDegree: 0
   }
 ]
+
+export function removeFormBookShelf(book) {
+    return getBookShelf().filter(item => {
+    if (item.itemList) {
+      item.itemList = removeAddFromShelf(item.itemList)
+    }
+    return item.fileName !== book.fileName
+  })
+}
+
+export function addToShelf(book) {  
+  let shelfList = getBookShelf()
+  shelfList = removeAddFromShelf(shelfList) //一出最后一本 也就是空
+  book.type = 1
+  shelfList.push(book)
+  shelfList = computeId(shelfList)
+  shelfList.appendAddToShelf(shelfList)
+  saveBookShelf(shelfList)
+}
 
 export function flatBookList(bookList) {
   if (bookList) {

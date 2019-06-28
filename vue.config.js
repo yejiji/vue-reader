@@ -18,5 +18,12 @@ module.exports = {
             mock(app, '/book/list', mockBookList)
             mock(app, '/book/flat-list', mockBookFlatList)
          }
+     },
+     configureWebpack: {
+         performance: {
+             hints: 'warning',
+             maxAssetSize: 52488,
+             maxEntrypointSize:52488
+         }
      }
 }
