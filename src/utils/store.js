@@ -72,7 +72,7 @@ export function addToShelf(book) {
   book.type = 1
   shelfList.push(book)
   shelfList = computeId(shelfList)
-  shelfList.appendAddToShelf(shelfList)
+  shelfList = appendAddToShelf(shelfList)
   saveBookShelf(shelfList)
 }
 

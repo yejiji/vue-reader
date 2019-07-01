@@ -130,7 +130,7 @@ export function getHome() {
     return setLocalStorage('shelf',shelf)
   }
 
-  export function getBookShelf(shelf) {
-    return getLocalStorage(shelf)
+  export function getBookShelf() {
+    return getLocalStorage('shelf')
   }
   

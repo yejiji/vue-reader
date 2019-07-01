@@ -14,7 +14,7 @@ export function shelf() {
   })
 }
 
-export function home() {
+export function Home() {
   return axios({
     method: 'get',
     url: `${process.env.VUE_APP_BASE_URL}/book/home`
